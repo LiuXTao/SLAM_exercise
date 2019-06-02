@@ -1,0 +1,60 @@
+cmake_minimum_required( VERSION 2.8 )
+project(vo1)
+
+set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
+
+list(APPEND CMAKE_MODULE_PATH /home/tao/slamexercise/cmake_modules/g2o)
+# list(APPEND CMAKE_MODULE_PATH /home/tao/slamexercise/cmake_modules/ceres)
+
+find_package( OpenCV 3.4 REQUIRED )
+find_package( G2O REQUIRED)
+find_package( CSparse REQUIRED )
+find_package( Ceres REQUIRED )
+
+include_directories( 
+    ${OpenCV_INCLUDE_DIRS} 
+    ${G2O_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${CSPARSE_INCLUDE_DIR}
+    "/usr/include/eigen3/"
+)
+
+
+add_executable( feature_extraction feature_extraction.cpp)
+target_link_libraries(feature_extraction ${OpenCV_LIBS})
+
+# add_executable( pose_estimation_2d2d pose_estimation_2d2d.cpp extra.cpp ) # use this if in OpenCV2 
+add_executable( pose_estimation_2d2d pose_estimation_2d2d.cpp )
+target_link_libraries( pose_estimation_2d2d ${OpenCV_LIBS} )
+
+# add_executable( triangulation triangulation.cpp extra.cpp) # use this if in opencv2 
+add_executable( triangulation triangulation.cpp )
+target_link_libraries( triangulation ${OpenCV_LIBS} )
+
+add_executable( pose_estimation_3d2d pose_estimation_3d2d.cpp )
+target_link_libraries( pose_estimation_3d2d 
+   ${OpenCV_LIBS}
+   ${CSPARSE_LIBRARY}
+   g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+)
+
+add_executable( pose_estimation_3d3d pose_estimation_3d3d.cpp )
+target_link_libraries( pose_estimation_3d3d 
+   ${OpenCV_LIBS}
+   ${CSPARSE_LIBRARY}
+   g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension
+)
+
+
+add_executable(ceres_pose_estimate_3d2d ceres_pose_estimation_3d2d.cpp)
+target_link_libraries(ceres_pose_estimate_3d2d
+   ${OpenCV_LIBS}
+   ${CERES_LIBRARIES}
+)
+
+add_executable(ceres_pose_estimate_3d3d ceres_pose_estimation_3d3d.cpp)
+target_link_libraries(ceres_pose_estimate_3d3d
+   ${OpenCV_LIBS}
+   ${CERES_LIBRARIES}
+)
